@@ -1,0 +1,272 @@
+ <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Imagen Digital</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+            transition: background-color 0.3s;
+        }
+        #controls {
+            margin-bottom: 20px;
+        }
+        canvas {
+            border: 1px solid #000;
+            background-color: #f9f9f9;
+            margin: 10px;
+        }
+        .canvas-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        .canvas-container > div {
+            margin: 10px;
+            text-align: center;
+        }
+        .canvas-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        #backgroundColor {
+            margin: 10px 0;
+        }
+        #pageTitle {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: green;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            border: 4px solid black;
+            padding: 15px;
+            border-radius: 15px;
+            animation: bounce 1s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-30px);
+            }
+            60% {
+                transform: translateY(-15px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <div id="pageTitle">Generador de Imagen Digital</div>
+        <label for="backgroundColor">Color de Fondo:</label>
+        <input type="color" id="backgroundColor" value="#ffffff">
+        <br>
+        <label for="shape">Figura:</label>
+        <select id="shape">
+            <option value="circle">Círculo</option>
+            <option value="square">Cuadrado</option>
+            <option value="rectangle">Rectángulo</option>
+            <option value="triangle">Triángulo</option>
+            <option value="hexagon">Hexágono</option>
+            <option value="pentagon">Pentágono</option>
+        </select>
+        <br>
+        <label for="width">Ancho:</label>
+        <input type="number" id="width" min="0" value="100">
+        <br>
+        <label for="height">Altura:</label>
+        <input type="number" id="height" min="0" value="100">
+        <br>
+        <label for="x">Posición X:</label>
+        <input type="number" id="x" min="0" value="50">
+        <br>
+        <label for="y">Posición Y:</label>
+        <input type="number" id="y" min="0" value="50">
+        <br>
+        <label for="fillColor">Color de Relleno:</label>
+        <input type="color" id="fillColor" value="#FF0000">
+        <br>
+        <label for="borderColor">Color del Borde:</label>
+        <input type="color" id="borderColor" value="#000000">
+        <br>
+        <label for="borderWidth">Ancho del Borde:</label>
+        <input type="number" id="borderWidth" min="0" value="2">
+        <br>
+        <button id="drawButton">Dibujar Vector</button>
+        <button id="clearButton">Borrar</button>
+        <button id="exportButton">Exportar Raster</button>
+    </div>
+    <div class="canvas-container">
+        <div class="canvas-title">Imagen Vectorizada</div>
+        <canvas id="vectorCanvas" width="400" height="400"></canvas>
+    </div>
+    <div class="canvas-container">
+        <div class="canvas-title">Imagen Rasterizada</div>
+        <canvas id="rasterCanvas" width="400" height="400"></canvas>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const vectorCanvas = document.getElementById('vectorCanvas');
+            const vectorCtx = vectorCanvas.getContext('2d');
+            const rasterCanvas = document.getElementById('rasterCanvas');
+            const rasterCtx = rasterCanvas.getContext('2d');
+            const backgroundColorInput = document.getElementById('backgroundColor');
+
+            // Actualizar el color de fondo de la página
+            backgroundColorInput.addEventListener('input', (event) => {
+                document.body.style.backgroundColor = event.target.value;
+            });
+
+            function drawVectorShape() {
+                const shape = document.getElementById('shape').value;
+                const width = parseFloat(document.getElementById('width').value);
+                const height = parseFloat(document.getElementById('height').value);
+                const x = parseFloat(document.getElementById('x').value);
+                const y = parseFloat(document.getElementById('y').value);
+                const fillColor = document.getElementById('fillColor').value;
+                const borderColor = document.getElementById('borderColor').value;
+                const borderWidth = parseFloat(document.getElementById('borderWidth').value);
+
+                vectorCtx.fillStyle = fillColor;
+                vectorCtx.strokeStyle = borderColor;
+                vectorCtx.lineWidth = borderWidth;
+
+                vectorCtx.clearRect(0, 0, vectorCanvas.width, vectorCanvas.height);
+
+                function drawCircle() {
+                    vectorCtx.beginPath();
+                    vectorCtx.arc(x, y, width / 2, 0, Math.PI * 2);
+                    vectorCtx.fill();
+                    vectorCtx.stroke();
+                }
+
+                function drawSquare() {
+                    vectorCtx.beginPath();
+                    vectorCtx.rect(x, y, width, width);
+                    vectorCtx.fill();
+                    vectorCtx.stroke();
+                }
+
+                function drawRectangle() {
+                    vectorCtx.beginPath();
+                    vectorCtx.rect(x, y, width, height);
+                    vectorCtx.fill();
+                    vectorCtx.stroke();
+                }
+
+                function drawTriangle() {
+                    vectorCtx.beginPath();
+                    vectorCtx.moveTo(x, y);
+                    vectorCtx.lineTo(x + width, y);
+                    vectorCtx.lineTo(x + width / 2, y - height);
+                    vectorCtx.closePath();
+                    vectorCtx.fill();
+                    vectorCtx.stroke();
+                }
+
+                function drawHexagon() {
+                    vectorCtx.beginPath();
+                    const radius = width / 2;
+                    for (let i = 0; i < 6; i++) {
+                        const angle = Math.PI / 3 * i;
+                        const xi = x + radius * Math.cos(angle);
+                        const yi = y + radius * Math.sin(angle);
+                        if (i === 0) {
+                            vectorCtx.moveTo(xi, yi);
+                        } else {
+                            vectorCtx.lineTo(xi, yi);
+                        }
+                    }
+                    vectorCtx.closePath();
+                    vectorCtx.fill();
+                    vectorCtx.stroke();
+                }
+
+                function drawPentagon() {
+                    vectorCtx.beginPath();
+                    const radius = width / 2;
+                    for (let i = 0; i < 5; i++) {
+                        const angle = Math.PI / 5 * (i * 2 + 1);
+                        const xi = x + radius * Math.cos(angle);
+                        const yi = y + radius * Math.sin(angle);
+                        if (i === 0) {
+                            vectorCtx.moveTo(xi, yi);
+                        } else {
+                            vectorCtx.lineTo(xi, yi);
+                        }
+                    }
+                    vectorCtx.closePath();
+                    vectorCtx.fill();
+                    vectorCtx.stroke();
+                }
+
+                switch (shape) {
+                    case 'circle':
+                        drawCircle();
+                        break;
+                    case 'square':
+                        drawSquare();
+                        break;
+                    case 'rectangle':
+                        drawRectangle();
+                        break;
+                    case 'triangle':
+                        drawTriangle();
+                        break;
+                    case 'hexagon':
+                        drawHexagon();
+                        break;
+                    case 'pentagon':
+                        drawPentagon();
+                        break;
+                }
+            }
+
+            function clearCanvas() {
+                vectorCtx.clearRect(0, 0, vectorCanvas.width, vectorCanvas.height);
+                rasterCtx.clearRect(0, 0, rasterCanvas.width, rasterCanvas.height);
+            }
+
+            function exportRaster() {
+                rasterCtx.clearRect(0, 0, rasterCanvas.width, rasterCanvas.height);
+
+                const image = new Image();
+                image.src = vectorCanvas.toDataURL();
+                image.onload = () => {
+                    rasterCtx.drawImage(image, 0, 0);
+                };
+            }
+
+            function animateBackgroundColor() {
+                let r = 0, g = 0, b = 0;
+                let phase = 0;
+
+                setInterval(() => {
+                    phase = (phase + 1) % 360;
+
+                    r = Math.sin(phase * Math.PI / 180) * 127 + 128;
+                    g = Math.sin((phase + 120) * Math.PI / 180) * 127 + 128;
+                    b = Math.sin((phase + 240) * Math.PI / 180) * 127 + 128;
+
+                    document.body.style.backgroundColor = `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+                }, 50);
+            }
+
+            // Iniciar la animación de color de fondo
+            animateBackgroundColor();
+
+            // Asignar eventos a los botones
+            document.getElementById('drawButton').addEventListener('click', drawVectorShape);
+            document.getElementById('clearButton').addEventListener('click', clearCanvas);
+            document.getElementById('exportButton').addEventListener('click', exportRaster);
+        });
+    </script>
+</body>
+</html>
