@@ -13,8 +13,8 @@
             padding-top: 20px;
         }
         canvas {
-            border: 5px solid #099afa; /Borde/
-            background-color: black; /Fondo negro/
+            border: 5px solid #099afa; /*Bordes*/
+            background-color: black; /*Fondo*/
         }
         .controls {
             margin-bottom: 20px;
@@ -62,20 +62,20 @@
             // Establece el color del polígono
             ctx.strokeStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
             ctx.beginPath();
+
+            // Ajuste del ángulo inicial para que un lado sea paralelo al eje X
+            const anguloInicial = (Math.PI / 2) - (Math.PI / numLados);
+
             for (let i = 0; i <= numLados; i++) {
-                const angulo = i * 2 * Math.PI / numLados;
+                const angulo = anguloInicial + i * 2 * Math.PI / numLados;
                 const x = centroX + radio * Math.cos(angulo);
                 const y = centroY + radio * Math.sin(angulo);
-                
+
                 if (i === 0) {
                     ctx.moveTo(x, y);
                 } else {
                     ctx.lineTo(x, y);
                 }
-                
-                // Dibuja una línea desde el vértice al centro del polígono
-                ctx.moveTo(centroX, centroY);
-                ctx.lineTo(x, y);
             }
             ctx.closePath();
             ctx.stroke();
