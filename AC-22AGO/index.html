@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICG-MUL-A-2024-2-AC-22AGO</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+        }
+        canvas {
+            border: 5px solid #099afa; /Borde/
+            background-color: black; /Fondo negro/
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Trazado de polígonos regulares</h1>
+    <div class="controls">
+        <label for="numLados">Número de lados:</label>
+        <input type="number" id="numLados" value="5" min="3" max="12"><br><br>
+
+        <label for="dimension">Longitud del lado:</label>
+        <input type="number" id="dimension" value="100" min="10" max="200"><br><br>
+
+        <button onclick="iniciarDibujo()">Dibujar</button>
+    </div>
+    <canvas id="canvas" width="1000" height="1000"></canvas>
+
+    <script>
+        let intervalo;
+        let color = {r: 0, g: 0, b: 0};
+
+        function cambiarColor() {
+            // Cambio de colores RGB
+            color.r = Math.floor(Math.random() * 256);
+            color.g = Math.floor(Math.random() * 256);
+            color.b = Math.floor(Math.random() * 256);
+        }
+
+        function dibujarPoligono() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            const numLados = document.getElementById('numLados').value;
+            const lado = document.getElementById('dimension').value;
+            const radio = lado / (2 * Math.sin(Math.PI / numLados));
+            const centroX = canvas.width / 2;
+            const centroY = canvas.height / 2;
+
+            // Limpia el canvas y establece el fondo negro
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Establece el color del polígono
+            ctx.strokeStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
+            ctx.beginPath();
+            for (let i = 0; i <= numLados; i++) {
+                const angulo = i * 2 * Math.PI / numLados;
+                const x = centroX + radio * Math.cos(angulo);
+                const y = centroY + radio * Math.sin(angulo);
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+                
+                // Dibuja una línea desde el vértice al centro del polígono
+                ctx.moveTo(centroX, centroY);
+                ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.stroke();
+        }
+
+        function iniciarDibujo() {
+            // Detiene cualquier intervalo previo
+            clearInterval(intervalo);
+            // Inicia el intervalo de cambio de color y dibujo
+            intervalo = setInterval(() => {
+                cambiarColor();
+                dibujarPoligono();
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
