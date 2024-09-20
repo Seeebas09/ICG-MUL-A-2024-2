@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Vectorizado</title>
+</head>
+<body>
+    <svg id="svgCanvas" width="600" height="400" style="border: 1px solid black;"></svg>
+
+    <script>
+        // Clase base para manejar el SVG
+        class SVGCanvas {
+            constructor(svgElement) {
+                this.svgElement = svgElement;
+            }
+
+            // Método para agregar un elemento al SVG usando funciones primitivas
+            addElement(tag, attributes) {
+                const element = document.createElementNS("http://www.w3.org/2000/svg", tag);
+                for (let attr in attributes) {
+                    element.setAttribute(attr, attributes[attr]);
+                }
+                this.svgElement.appendChild(element);
+            }
+        }
+
+        // Clase Linea con encapsulamiento
+        class Linea {
+            constructor(x1, y1, x2, y2) {
+                this._x1 = x1;
+                this._y1 = y1;
+                this._x2 = x2;
+                this._y2 = y2;
+            }
+
+            // Método para dibujar la línea utilizando <line>
+            dibujar(svgCanvas) {
+                svgCanvas.addElement('line', {
+                    x1: this._x1,
+                    y1: this._y1,
+                    x2: this._x2,
+                    y2: this._y2,
+                    stroke: 'black',
+                    'stroke-width': 2
+                });
+            }
+        }
+
+        // Clase Circunferencia con encapsulamiento
+        class Circunferencia {
+            constructor(cx, cy, r) {
+                this._cx = cx;
+                this._cy = cy;
+                this._r = r;
+            }
+
+            // Método para dibujar la circunferencia utilizando <circle>
+            dibujar(svgCanvas) {
+                svgCanvas.addElement('circle', {
+                    cx: this._cx,
+                    cy: this._cy,
+                    r: this._r,
+                    stroke: 'black',
+                    'stroke-width': 2,
+                    fill: 'none'
+                });
+            }
+        }
+
+        // Clase Elipse con encapsulamiento
+        class Elipse {
+            constructor(cx, cy, rx, ry) {
+                this._cx = cx;
+                this._cy = cy;
+                this._rx = rx;
+                this._ry = ry;
+            }
+
+            // Método para dibujar la elipse utilizando <ellipse>
+            dibujar(svgCanvas) {
+                svgCanvas.addElement('ellipse', {
+                    cx: this._cx,
+                    cy: this._cy,
+                    rx: this._rx,
+                    ry: this._ry,
+                    stroke: 'black',
+                    'stroke-width': 2,
+                    fill: 'none'
+                });
+            }
+        }
+
+        // Crear el canvas SVG
+        const svgCanvasElement = document.getElementById('svgCanvas');
+        const svgCanvas = new SVGCanvas(svgCanvasElement);
+
+        // Dibujar las figuras utilizando elementos vectorizados nativos de SVG
+        const linea = new Linea(50, 50, 200, 200);
+        linea.dibujar(svgCanvas);
+
+        const circunferencia = new Circunferencia(300, 100, 50);
+        circunferencia.dibujar(svgCanvas);
+
+        const elipse = new Elipse(400, 300, 80, 50);
+        elipse.dibujar(svgCanvas);
+
+    </script>
+</body>
+</html>
