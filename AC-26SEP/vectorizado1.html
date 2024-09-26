@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Vectorizado - Funciones Primitivas</title>
+</head>
+<body>
+    <svg id="svgCanvas" width="600" height="400" style="border: 1px solid black;"></svg>
+
+    <script>
+        // Clase base para manejar el SVG
+        class SVGCanvas {
+            constructor(svgElement) {
+                this.svgElement = svgElement;
+            }
+
+            // Método para agregar un elemento al SVG usando funciones primitivas
+            addElement(tag, attributes) {
+                const element = document.createElementNS("http://www.w3.org/2000/svg", tag);
+                for (let attr in attributes) {
+                    element.setAttribute(attr, attributes[attr]);
+                }
+                this.svgElement.appendChild(element);
+            }
+        }
+
+        // Clase Punto con encapsulamiento
+        class Punto {
+            #x;
+            #y;
+
+            constructor(x, y) {
+                this.#x = x;
+                this.#y = y;
+            }
+
+            getX() {
+                return this.#x;
+            }
+
+            getY() {
+                return this.#y;
+            }
+        }
+
+        // Clase Linea con el algoritmo de Bresenham
+        class Linea {
+            #puntoInicio;
+            #puntoFin;
+
+            constructor(puntoInicio, puntoFin) {
+                this.#puntoInicio = puntoInicio;
+                this.#puntoFin = puntoFin;
+            }
+
+            // Método para dibujar la línea utilizando el algoritmo de Bresenham
+            dibujar(svgCanvas) {
+                let x1 = this.#puntoInicio.getX();
+                let y1 = this.#puntoInicio.getY();
+                let x2 = this.#puntoFin.getX();
+                let y2 = this.#puntoFin.getY();
+
+                // Implementación del algoritmo de Bresenham
+                const dx = Math.abs(x2 - x1);
+                const dy = Math.abs(y2 - y1);
+                const sx = x1 < x2 ? 1 : -1;
+                const sy = y1 < y2 ? 1 : -1;
+                let err = dx - dy;
+
+                while (true) {
+                    svgCanvas.addElement('rect', {
+                        x: x1,
+                        y: y1,
+                        width: 1,
+                        height: 1,
+                        fill: 'black'
+                    });
+                    if (x1 === x2 && y1 === y2) break;
+
+                    const e2 = err * 2;
+                    if (e2 > -dy) {
+                        err -= dy;
+                        x1 += sx;
+                    }
+                    if (e2 < dx) {
+                        err += dx;
+                        y1 += sy;
+                    }
+                }
+            }
+        }
+
+        // Clase Circunferencia
+        class Circunferencia {
+            #centro;
+            #radio;
+
+            constructor(centro, radio) {
+                this.#centro = centro;
+                this.#radio = radio;
+            }
+
+            // Método para dibujar la circunferencia
+            dibujar(svgCanvas) {
+                let cx = this.#centro.getX();
+                let cy = this.#centro.getY();
+                let x = 0;
+                let y = this.#radio;
+                let d = 3 - 2 * this.#radio;
+
+                while (y >= x) {
+                    this.#drawCirclePoints(svgCanvas, cx, cy, x, y);
+                    if (d <= 0) {
+                        d = d + 4 * x + 6;
+                    } else {
+                        d = d + 4 * (x - y) + 10;
+                        y--;
+                    }
+                    x++;
+                }
+            }
+
+            #drawCirclePoints(svgCanvas, cx, cy, x, y) {
+                const points = [
+                    [cx + x, cy + y],
+                    [cx - x, cy + y],
+                    [cx + x, cy - y],
+                    [cx - x, cy - y],
+                    [cx + y, cy + x],
+                    [cx - y, cy + x],
+                    [cx + y, cy - x],
+                    [cx - y, cy - x]
+                ];
+
+                points.forEach(point => {
+                    svgCanvas.addElement('rect', {
+                        x: point[0],
+                        y: point[1],
+                        width: 1,
+                        height: 1,
+                        fill: 'black'
+                    });
+                });
+            }
+        }
+
+        // Clase Elipse
+        class Elipse {
+            #centro;
+            #rx;
+            #ry;
+
+            constructor(centro, rx, ry) {
+                this.#centro = centro;
+                this.#rx = rx;
+                this.#ry = ry;
+            }
+
+            // Método para dibujar la elipse
+            dibujar(svgCanvas) {
+                let x = 0;
+                let y = this.#ry;
+                const rx2 = this.#rx * this.#rx;
+                const ry2 = this.#ry * this.#ry;
+                let err = ry2 - (2 * this.#ry - 1) * rx2;
+
+                while (y >= 0) {
+                    this.#drawElipsePoints(svgCanvas, this.#centro.getX(), this.#centro.getY(), x, y);
+                    const e2 = 2 * err;
+                    if (e2 < (2 * x + 1) * ry2) {
+                        x++;
+                        err += (2 * x + 1) * ry2;
+                    }
+                    if (e2 > -(2 * y - 1) * rx2) {
+                        y--;
+                        err -= (2 * y - 1) * rx2;
+                    }
+                }
+            }
+
+            #drawElipsePoints(svgCanvas, cx, cy, x, y) {
+                const points = [
+                    [cx + x, cy + y],
+                    [cx - x, cy + y],
+                    [cx + x, cy - y],
+                    [cx - x, cy - y]
+                ];
+
+                points.forEach(point => {
+                    svgCanvas.addElement('rect', {
+                        x: point[0],
+                        y: point[1],
+                        width: 1,
+                        height: 1,
+                        fill: 'black'
+                    });
+                });
+            }
+        }
+
+        // Crear el canvas SVG
+        const svgCanvasElement = document.getElementById('svgCanvas');
+        const svgCanvas = new SVGCanvas(svgCanvasElement);
+
+        // Dibujar las figuras primitivas
+        const linea = new Linea(new Punto(50, 50), new Punto(200, 200));
+        linea.dibujar(svgCanvas);
+
+        const circunferencia = new Circunferencia(new Punto(300, 100), 50);
+        circunferencia.dibujar(svgCanvas);
+
+        const elipse = new Elipse(new Punto(400, 300), 80, 50);
+        elipse.dibujar(svgCanvas);
+    </script>
+</body>
+</html>
