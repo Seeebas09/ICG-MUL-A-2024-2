@@ -68,4 +68,14 @@
 // Cálculo del determinante
                 const det = (p2.getX() - p1.getX()) * (p3.getY() - p1.getY()) - 
                              (p2.getY() - p1.getY()) * (p3.getX() - p1.getX());
+  if (det !== 0) {
+                    const nuevoSigno = det > 0 ? 1 : -1; // Determinar el signo del determinante
+                    if (signo === 0) {
+                        signo = nuevoSigno; // Inicializar signo
+                    } else if (signo !== nuevoSigno) {
+                        return false; // Si los signos cambian, el polígono es cóncavo
+                    }
+                }
+            }
+            return true; // Si no hay cambio de signo, es convexo
 
