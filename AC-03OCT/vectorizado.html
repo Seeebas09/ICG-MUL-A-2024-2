@@ -51,3 +51,10 @@
         function calcularCentroid(puntos) {
             let xSum = 0; // Suma de las coordenadas x
             let ySum = 0; // Suma de las coordenadas y
+             puntos.forEach(p => {
+                xSum += p.getX(); // Sumar la coordenada x de cada punto
+                ySum += p.getY(); // Sumar la coordenada y de cada punto
+            });
+  // Retornar el centroide como un nuevo punto
+            return new Punto(xSum / puntos.length, ySum / puntos.length);
+        }
