@@ -65,3 +65,7 @@
                 const p1 = puntos[i];
                 const p2 = puntos[(i + 1) % puntos.length];
                 const p3 = puntos[(i + 2) % puntos.length];
+// Cálculo del determinante
+                const det = (p2.getX() - p1.getX()) * (p3.getY() - p1.getY()) - 
+                             (p2.getY() - p1.getY()) * (p3.getX() - p1.getX());
+
