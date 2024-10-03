@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parcial Segundo Corte</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        canvas {
+            border: 1px solid black;
+        }
+
+        button {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Trazador de Polígonos - Razterizados</h1>
+    <canvas id="canvas" width="600" height="400"></canvas>
+    <button id="toggleCentroid">Mostrar/Ocultar Centroide</button>
+    <p id="polygonType"></p>
+
+    <script>
+        // Clase Punto 
+        class Punto {
+            constructor(x, y) {
+                this.x = x; // Coordenada x del punto
+                this.y = y; // Coordenada y del punto
+            }
+
+            getX() {
+                return this.x; // Método para obtener la coordenada x
+            }
+
+            getY() {
+                return this.y; // Método para obtener la coordenada y
+            }
+        }
+
+        const puntos = []; // Lista de puntos que definen el polígono
+        let mostrarCentroid = false; // Variable para controlar la visualización del centroide
+
+        // Función para generar puntos aleatorios
+        function generarPuntosAleatorios(cantidad) {
+            puntos.length = 0; 
+            for (let i = 0; i < cantidad; i++) {
+                const x = Math.random() * 600; // Genera un valor aleatorio para x
+                const y = Math.random() * 400; // Genera un valor aleatorio para y
+                puntos.push(new Punto(x, y)); // Añade un nuevo punto a la lista
+            }
+        }
+
+        // Función que calcula el centroide del polígono a partir de sus puntos
+        function calcularCentroid(puntos) {
+            let xSum = 0;
+            let ySum = 0;
+
+            // Suma las coordenadas x e y de todos los puntos
+            puntos.forEach(p => {
+                xSum += p.getX();
+                ySum += p.getY();
+            });
+
+            // Devuelve un nuevo punto que representa el centroide
+            return new Punto(xSum / puntos.length, ySum / puntos.length);
+        }
+
+        // Función que ordena los puntos en sentido horario
+        function ordenarPuntos(puntos) {
+            const centroide = calcularCentroid(puntos);
+
+            // Ordenar los puntos por el ángulo respecto al centroide
+            puntos.sort((a, b) => {
+                const anguloA = Math.atan2(a.getY() - centroide.getY(), a.getX() - centroide.getX());
+                const anguloB = Math.atan2(b.getY() - centroide.getY(), b.getX() - centroide.getX());
+                return anguloA - anguloB;
+            });
+        }
+
+        // Función que determina si el polígono es convexo o cóncavo
+        function esConvexo(puntos) {
+            let signo = 0; // Variable para almacenar el signo del determinante
+
+            // Recorre todos los puntos para calcular el determinante
+            for (let i = 0; i < puntos.length; i++) {
+                const p1 = puntos[i];
+                const p2 = puntos[(i + 1) % puntos.length]; // Siguiente punto
+                const p3 = puntos[(i + 2) % puntos.length]; // Punto siguiente al siguiente
+
+                // Cálculo del determinante
+                const det = (p2.getX() - p1.getX()) * (p3.getY() - p1.getY()) - (p2.getY() - p1.getY()) * (p3.getX() - p1.getX());
+
+                // Si el determinante es diferente de 0, se determina el signo
+                if (det !== 0) {
+                    const nuevoSigno = det > 0 ? 1 : -1;
+                    if (signo === 0) {
+                        signo = nuevoSigno; // Establecer el signo inicial
+                    } else if (signo !== nuevoSigno) {
+                        return false; // Si el signo cambia, el polígono es cóncavo
+                    }
+                }
+            }
+
+            return true; // Si no hay cambios de signo, el polígono es convexo
+        }
+
+        // Función que dibuja el polígono en el canvas
+        function dibujarPoligono(ctx, puntos) {
+            ordenarPuntos(puntos); // Asegura que los puntos estén ordenados
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); 
+            ctx.beginPath();
+            ctx.moveTo(puntos[0].getX(), puntos[0].getY()); // Mueve el trazado al primer punto
+
+            // Dibuja líneas entre los puntos
+            for (let i = 1; i < puntos.length; i++) {
+                ctx.lineTo(puntos[i].getX(), puntos[i].getY());
+            }
+
+            ctx.closePath(); 
+            ctx.strokeStyle = 'blue';
+            ctx.stroke(); 
+
+            // Si se debe mostrar el centroide
+            if (mostrarCentroid) {
+                const centroid = calcularCentroid(puntos); // Calcula el centroide
+                ctx.fillStyle = 'red'; 
+                ctx.beginPath();
+                ctx.arc(centroid.getX(), centroid.getY(), 5, 0, Math.PI * 2); // Dibuja un círculo para el centroide
+                ctx.fill();
+
+                ctx.strokeStyle = 'green'; 
+                puntos.forEach(p => {
+                    ctx.beginPath();
+                    ctx.moveTo(centroid.getX(), centroid.getY()); // Mueve el trazado al centroide
+                    ctx.lineTo(p.getX(), p.getY()); // Dibuja línea hacia cada punto
+                    ctx.stroke();
+                });
+            }
+
+            // Determina y muestra el tipo de polígono
+            const tipo = esConvexo(puntos) ? "Convexo" : "Cóncavo";
+            document.getElementById('polygonType').innerText = `Tipo de polígono: ${tipo}`;
+        }
+
+        // Evento para mostrar u ocultar el centroide al hacer clic en el botón
+        document.getElementById('toggleCentroid').addEventListener('click', () => {
+            mostrarCentroid = !mostrarCentroid; // Alterna la variable de control
+            const ctx = document.getElementById('canvas').getContext('2d');
+            dibujarPoligono(ctx, puntos); // Redibuja el polígono con la nueva configuración
+        });
+
+        // Función para actualizar el polígono cada 2 minutos
+        function actualizarPoligono() {
+            generarPuntosAleatorios(5); // Genera 5 puntos aleatorios
+            const ctx = document.getElementById('canvas').getContext('2d');
+            dibujarPoligono(ctx, puntos); // Dibuja el nuevo polígono
+        }
+
+        // Llama a la función por primera vez
+        actualizarPoligono();
+
+       
+    </script>
+</body>
+</html>
