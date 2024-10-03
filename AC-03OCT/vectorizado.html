@@ -1,31 +1,106 @@
+import numpy as np
 import matplotlib.pyplot as plt
-import svgwrite
+from matplotlib.widgets import Button
 
 # Lista de puntos (x, y) que forman los vértices del polígono
 puntos = [(1, 1), (3, 1), (4, 3), (2, 4), (1, 3)]
 
-# Separar las coordenadas x e y para uso en matplotlib
-x, y = zip(*puntos)
+# Función para verificar si el polígono es convexo o cóncavo
+def es_convexo(puntos):
+    def cruz(p1, p2, p3):
+        return (p2[0] - p1[0]) * (p3[1] - p1[1]) - (p2[1] - p1[1]) * (p3[0] - p1[0])
+    
+    signos = []
+    n = len(puntos)
+    for i in range(n):
+        p1, p2, p3 = puntos[i], puntos[(i + 1) % n], puntos[(i + 2) % n]
+        cp = cruz(p1, p2, p3)
+        signos.append(np.sign(cp))
+    
+    return all(s >= 0 for s in signos) or all(s <= 0 for s in signos)
 
-# Cerrar el polígono conectando el último punto con el primero
-x = list(x) + [x[0]]
-y = list(y) + [y[0]]
+# Función para calcular el centroide del polígono
+def calcular_centroide(puntos):
+    x_coords, y_coords = zip(*puntos)
+    _x = sum(x_coords) / len(puntos)
+    _y = sum(y_coords) / len(puntos)
+    return (_x, _y)
 
-# Función para dibujar el polígono rasterizado
-def dibujar_rasterizado():
-    plt.figure()
-    plt.plot(x, y, 'b-', marker='o')
+# Función para dibujar el polígono
+def dibujar_poligono(puntos, mostrar_centroide=False):
+    x, y = zip(*puntos)
+    x = list(x) + [x[0]]
+    y = list(y) + [y[0]]
+
+    plt.cla()  # Limpiar figura
+    plt.plot(x, y, 'b-', marker='o', label='Polígono')
     plt.fill(x, y, 'skyblue', alpha=0.5)
-    plt.title('Polígono Rasterizado')
+    
+    # Calcular y dibujar el centroide si está habilitado
+    if mostrar_centroide:
+        centroide = calcular_centroide(puntos)
+        cx, cy = centroide
+        plt.plot(cx, cy, 'ro', label='Centroide')
+        
+        # Dibujar líneas desde el centroide a cada vértice
+        for punto in puntos:
+            plt.plot([cx, punto[0]], [cy, punto[1]], 'r--')
+    
     plt.gca().set_aspect('equal', adjustable='box')
-    plt.show()
+    plt.title('Polígono Cóncavo' if not es_convexo(puntos) else 'Polígono Convexo')
+    plt.legend()
+    plt.draw()
 
-# Función para guardar el polígono en formato vectorial SVG
-def dibujar_vectorizado():
-    dwg = svgwrite.Drawing('poligono.svg', profile='tiny')
-    poligono = dwg.add(dwg.polygon(points=puntos, fill='lightblue', stroke='blue', stroke_width=2))
-    dwg.save()
+# Función del botón para mostrar/ocultar el centroide
+mostrar_centroide = [False]  # Variable para el estado del botón
 
-# Llamar las funciones
-dibujar_rasterizado()   # Para mostrar el polígono en formato rasterizado
-dibujar_vectorizado()   # Para guardar el polígono en formato SVG (vectorial)
+def alternar_centroide(event):
+    mostrar_centroide[0] = not mostrar_centroide[0]
+    dibujar_poligono(puntos, mostrar_centroide=mostrar_centroide[0])
+
+# Evitar cruce de líneas (si el polígono es simple, las líneas no se cruzan)
+def evitar_cruce(puntos):
+    def cruza(p1, p2, p3, p4):
+        def det(a, b, c, d):
+            return a * d - b * c
+        
+        x1, y1 = p1
+        x2, y2 = p2
+        x3, y3 = p3
+        x4, y4 = p4
+        denom = det(x1 - x2, y1 - y2, x3 - x4, y3 - y4)
+        
+        if denom == 0:
+            return False  # Las líneas son paralelas
+        
+        t = det(x1 - x3, y1 - y3, x3 - x4, y3 - y4) / denom
+        u = -det(x1 - x2, y1 - y2, x1 - x3, y1 - y3) / denom
+        
+        return 0 <= t <= 1 and 0 <= u <= 1
+
+    n = len(puntos)
+    for i in range(n):
+        for j in range(i + 2, n):
+            if i == 0 and j == n - 1:
+                continue  # No comparar el primer y último vértice
+            if cruza(puntos[i], puntos[(i + 1) % n], puntos[j], puntos[(j + 1) % n]):
+                return False
+    return True
+
+# Comprobación de cruce
+if evitar_cruce(puntos):
+    print("El polígono no tiene cruces de líneas.")
+else:
+    print("El polígono tiene cruces de líneas y no es simple.")
+
+# Crear figura y dibujar el polígono
+fig, ax = plt.subplots()
+plt.subplots_adjust(bottom=0.2)
+dibujar_poligono(puntos)
+
+# Botón para alternar el centroide
+ax_button = plt.axes([0.8, 0.05, 0.1, 0.075])
+boton = Button(ax_button, 'Centroide')
+boton.on_clicked(alternar_centroide)
+
+plt.show()
