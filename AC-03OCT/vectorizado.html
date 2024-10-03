@@ -91,3 +91,11 @@
             polygon.setAttribute("fill", "none"); 
 polygon.setAttribute("stroke", "blue"); 
   svg.appendChild(polygon); // Agregar el polígono al SVG
+// Si se debe mostrar el centroide
+            if (mostrarCentroid) {
+                const centroid = calcularCentroid(puntos); // Calcular el centroide
+                const centroidCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                 centroidCircle.setAttribute("cx", centroid.getX()); // Posición x del centroide
+                centroidCircle.setAttribute("cy", centroid.getY()); // Posición y del centroide
+                centroidCircle.setAttribute("r", 5); // Radio del círculo
+                centroidCircle.setAttribute("fill", "red"); 
