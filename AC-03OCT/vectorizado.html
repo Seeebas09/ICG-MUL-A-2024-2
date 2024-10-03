@@ -23,10 +23,7 @@
     <svg id="svg" width="600" height="400"></svg> <!-- Área SVG para dibujar el polígono -->
     <button id="toggleCentroid">Mostrar/Ocultar Centroide</button> <!-- Botón para mostrar u ocultar el centroide -->
     <p id="polygonType"></p> <!-- Elemento para mostrar el tipo de polígono (convexo o cóncavo) -->
-    <script>
-          getX() { return this.x; } // Retorna la coordenada x
-            getY() { return this.y; } // Retorna la coordenada y
-        }
+  <script>
         // Clase Punto
         class Punto {
             constructor(x, y) {
@@ -36,4 +33,17 @@
 
             getX() { return this.x; } // Retorna la coordenada x
             getY() { return this.y; } // Retorna la coordenada y
+        }
+
+        const puntos = []; // Arreglo para almacenar los puntos del polígono
+        let mostrarCentroid = false; // Bandera para mostrar u ocultar el centroide
+
+        // Función para generar puntos aleatorios
+        function generarPuntosAleatorios(cantidad) {
+            puntos.length = 0; // Reiniciar el arreglo de puntos
+            for (let i = 0; i < cantidad; i++) {
+                const x = Math.random() * 600; // Generar coordenada x aleatoria
+                const y = Math.random() * 400; // Generar coordenada y aleatoria
+                puntos.push(new Punto(x, y)); // Agregar el nuevo punto al arreglo
+            }
         }
