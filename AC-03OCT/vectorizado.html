@@ -58,3 +58,10 @@
   // Retornar el centroide como un nuevo punto
             return new Punto(xSum / puntos.length, ySum / puntos.length);
         }
+// Función para determinar si el polígono es convexo
+        function esConvexo(puntos) {
+            let signo = 0; // Variable para almacenar el signo del determinante
+            for (let i = 0; i < puntos.length; i++) {
+                const p1 = puntos[i];
+                const p2 = puntos[(i + 1) % puntos.length];
+                const p3 = puntos[(i + 2) % puntos.length];
