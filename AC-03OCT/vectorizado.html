@@ -23,7 +23,8 @@
     <svg id="svg" width="600" height="400"></svg> <!-- Área SVG para dibujar el polígono -->
     <button id="toggleCentroid">Mostrar/Ocultar Centroide</button> <!-- Botón para mostrar u ocultar el centroide -->
     <p id="polygonType"></p> <!-- Elemento para mostrar el tipo de polígono (convexo o cóncavo) -->
-  <script>
+
+    <script>
         // Clase Punto
         class Punto {
             constructor(x, y) {
@@ -47,28 +48,34 @@
                 puntos.push(new Punto(x, y)); // Agregar el nuevo punto al arreglo
             }
         }
-       // Función para calcular el centroide del polígono
+
+        // Función para calcular el centroide del polígono
         function calcularCentroid(puntos) {
             let xSum = 0; // Suma de las coordenadas x
             let ySum = 0; // Suma de las coordenadas y
-             puntos.forEach(p => {
+
+            puntos.forEach(p => {
                 xSum += p.getX(); // Sumar la coordenada x de cada punto
                 ySum += p.getY(); // Sumar la coordenada y de cada punto
             });
-  // Retornar el centroide como un nuevo punto
+
+            // Retornar el centroide como un nuevo punto
             return new Punto(xSum / puntos.length, ySum / puntos.length);
         }
-// Función para determinar si el polígono es convexo
+
+        // Función para determinar si el polígono es convexo
         function esConvexo(puntos) {
             let signo = 0; // Variable para almacenar el signo del determinante
             for (let i = 0; i < puntos.length; i++) {
                 const p1 = puntos[i];
                 const p2 = puntos[(i + 1) % puntos.length];
                 const p3 = puntos[(i + 2) % puntos.length];
-// Cálculo del determinante
+
+                // Cálculo del determinante
                 const det = (p2.getX() - p1.getX()) * (p3.getY() - p1.getY()) - 
                              (p2.getY() - p1.getY()) * (p3.getX() - p1.getX());
-  if (det !== 0) {
+
+                if (det !== 0) {
                     const nuevoSigno = det > 0 ? 1 : -1; // Determinar el signo del determinante
                     if (signo === 0) {
                         signo = nuevoSigno; // Inicializar signo
@@ -78,24 +85,67 @@
                 }
             }
             return true; // Si no hay cambio de signo, es convexo
-// Función para dibujar el polígono en el SVG
+        }
+
+        // Función para dibujar el polígono en el SVG
         function dibujarPoligono() {
             const svg = document.getElementById('svg');
             svg.innerHTML = ''; // Limpiar el SVG antes de dibujar
-// Generar el path del polígono
- let pathData = puntos.map(p => `${p.getX()},${p.getY()}`).join(' L ');
+
+            // Generar el path del polígono
+            let pathData = puntos.map(p => `${p.getX()},${p.getY()}`).join(' L ');
             pathData = `M ${pathData} Z`; // Cierra el polígono
-// Crear y configurar el elemento <path> para el polígono
+
+            // Crear y configurar el elemento <path> para el polígono
             const polygon = document.createElementNS("http://www.w3.org/2000/svg", "path");
             polygon.setAttribute("d", pathData); // Establecer el atributo 'd' con el path
             polygon.setAttribute("fill", "none"); 
-polygon.setAttribute("stroke", "blue"); 
-  svg.appendChild(polygon); // Agregar el polígono al SVG
-// Si se debe mostrar el centroide
+            polygon.setAttribute("stroke", "blue"); 
+
+            svg.appendChild(polygon); // Agregar el polígono al SVG
+
+            // Si se debe mostrar el centroide
             if (mostrarCentroid) {
                 const centroid = calcularCentroid(puntos); // Calcular el centroide
                 const centroidCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                 centroidCircle.setAttribute("cx", centroid.getX()); // Posición x del centroide
+                centroidCircle.setAttribute("cx", centroid.getX()); // Posición x del centroide
                 centroidCircle.setAttribute("cy", centroid.getY()); // Posición y del centroide
                 centroidCircle.setAttribute("r", 5); // Radio del círculo
                 centroidCircle.setAttribute("fill", "red"); 
+
+                svg.appendChild(centroidCircle); // Agregar el círculo al SVG
+
+                // Dibujar líneas desde el centroide a cada punto
+                puntos.forEach(p => {
+                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    line.setAttribute("x1", centroid.getX());
+                    line.setAttribute("y1", centroid.getY());
+                    line.setAttribute("x2", p.getX());
+                    line.setAttribute("y2", p.getY());
+                    line.setAttribute("stroke", "green"); 
+                    line.setAttribute("stroke-width", 1); 
+                    svg.appendChild(line); // Agregar la línea al SVG
+                });
+            }
+
+            // Determinar el tipo de polígono (convexo o cóncavo)
+            const tipo = esConvexo(puntos) ? "Convexo" : "Cóncavo";
+            document.getElementById('polygonType').innerText = `Tipo de polígono: ${tipo}`; // Mostrar tipo en el DOM
+        }
+
+        // Evento para alternar la visualización del centroide
+        document.getElementById('toggleCentroid').addEventListener('click', () => {
+            mostrarCentroid = !mostrarCentroid; // Cambiar la bandera
+            dibujarPoligono(); // Redibujar el polígono
+        });
+
+        // Función para actualizar los puntos del polígono
+        function actualizarPoligono() {
+            generarPuntosAleatorios(5); // Generar 5 puntos aleatorios
+            dibujarPoligono(); // Dibujar el polígono con los nuevos puntos
+        }
+
+        actualizarPoligono(); // Inicializar el polígono al cargar la página
+    </script>
+</body>
+</html>
