@@ -1,106 +1,110 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.widgets import Button
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polígono Aleatorio</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+        .info {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
 
-# Lista de puntos (x, y) que forman los vértices del polígono
-puntos = [(1, 1), (3, 1), (4, 3), (2, 4), (1, 3)]
+<canvas id="poligonoCanvas" width="500" height="500"></canvas>
+<div class="info">
+    <p id="tipoPoligono">Tipo de polígono: </p>
+</div>
 
-# Función para verificar si el polígono es convexo o cóncavo
-def es_convexo(puntos):
-    def cruz(p1, p2, p3):
-        return (p2[0] - p1[0]) * (p3[1] - p1[1]) - (p2[1] - p1[1]) * (p3[0] - p1[0])
-    
-    signos = []
-    n = len(puntos)
-    for i in range(n):
-        p1, p2, p3 = puntos[i], puntos[(i + 1) % n], puntos[(i + 2) % n]
-        cp = cruz(p1, p2, p3)
-        signos.append(np.sign(cp))
-    
-    return all(s >= 0 for s in signos) or all(s <= 0 for s in signos)
+<script>
+    // Clase Punto
+    class Punto {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+    }
 
-# Función para calcular el centroide del polígono
-def calcular_centroide(puntos):
-    x_coords, y_coords = zip(*puntos)
-    _x = sum(x_coords) / len(puntos)
-    _y = sum(y_coords) / len(puntos)
-    return (_x, _y)
+    // Clase Polígono
+    class Poligono {
+        constructor(puntos) {
+            this.puntos = puntos;
+        }
 
-# Función para dibujar el polígono
-def dibujar_poligono(puntos, mostrar_centroide=False):
-    x, y = zip(*puntos)
-    x = list(x) + [x[0]]
-    y = list(y) + [y[0]]
+        // Función para dibujar el polígono
+        dibujar(ctx) {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Limpiar canvas
+            ctx.beginPath();
+            ctx.moveTo(this.puntos[0].x, this.puntos[0].y);
 
-    plt.cla()  # Limpiar figura
-    plt.plot(x, y, 'b-', marker='o', label='Polígono')
-    plt.fill(x, y, 'skyblue', alpha=0.5)
-    
-    # Calcular y dibujar el centroide si está habilitado
-    if mostrar_centroide:
-        centroide = calcular_centroide(puntos)
-        cx, cy = centroide
-        plt.plot(cx, cy, 'ro', label='Centroide')
-        
-        # Dibujar líneas desde el centroide a cada vértice
-        for punto in puntos:
-            plt.plot([cx, punto[0]], [cy, punto[1]], 'r--')
-    
-    plt.gca().set_aspect('equal', adjustable='box')
-    plt.title('Polígono Cóncavo' if not es_convexo(puntos) else 'Polígono Convexo')
-    plt.legend()
-    plt.draw()
+            for (let i = 1; i < this.puntos.length; i++) {
+                ctx.lineTo(this.puntos[i].x, this.puntos[i].y);
+            }
+            ctx.closePath();
+            ctx.fillStyle = 'skyblue';
+            ctx.fill();
+            ctx.stroke();
+        }
 
-# Función del botón para mostrar/ocultar el centroide
-mostrar_centroide = [False]  # Variable para el estado del botón
+        // Función para verificar si el polígono es convexo
+        esConvexo() {
+            const cruz = (p1, p2, p3) => {
+                return (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x);
+            };
 
-def alternar_centroide(event):
-    mostrar_centroide[0] = not mostrar_centroide[0]
-    dibujar_poligono(puntos, mostrar_centroide=mostrar_centroide[0])
+            let signos = [];
+            let n = this.puntos.length;
+            for (let i = 0; i < n; i++) {
+                let p1 = this.puntos[i];
+                let p2 = this.puntos[(i + 1) % n];
+                let p3 = this.puntos[(i + 2) % n];
+                let cp = cruz(p1, p2, p3);
+                signos.push(Math.sign(cp));
+            }
 
-# Evitar cruce de líneas (si el polígono es simple, las líneas no se cruzan)
-def evitar_cruce(puntos):
-    def cruza(p1, p2, p3, p4):
-        def det(a, b, c, d):
-            return a * d - b * c
-        
-        x1, y1 = p1
-        x2, y2 = p2
-        x3, y3 = p3
-        x4, y4 = p4
-        denom = det(x1 - x2, y1 - y2, x3 - x4, y3 - y4)
-        
-        if denom == 0:
-            return False  # Las líneas son paralelas
-        
-        t = det(x1 - x3, y1 - y3, x3 - x4, y3 - y4) / denom
-        u = -det(x1 - x2, y1 - y2, x1 - x3, y1 - y3) / denom
-        
-        return 0 <= t <= 1 and 0 <= u <= 1
+            return signos.every(s => s >= 0) || signos.every(s => s <= 0);
+        }
+    }
 
-    n = len(puntos)
-    for i in range(n):
-        for j in range(i + 2, n):
-            if i == 0 and j == n - 1:
-                continue  # No comparar el primer y último vértice
-            if cruza(puntos[i], puntos[(i + 1) % n], puntos[j], puntos[(j + 1) % n]):
-                return False
-    return True
+    // Función para generar puntos aleatorios
+    function generarPuntosAleatorios(numPuntos, ancho, alto) {
+        let puntos = [];
+        for (let i = 0; i < numPuntos; i++) {
+            let x = Math.random() * ancho;
+            let y = Math.random() * alto;
+            puntos.push(new Punto(x, y));
+        }
+        return puntos;
+    }
 
-# Comprobación de cruce
-if evitar_cruce(puntos):
-    print("El polígono no tiene cruces de líneas.")
-else:
-    print("El polígono tiene cruces de líneas y no es simple.")
+    // Configurar el canvas y dibujar el polígono
+    function iniciar() {
+        const canvas = document.getElementById('poligonoCanvas');
+        const ctx = canvas.getContext('2d');
+        const ancho = canvas.width;
+        const alto = canvas.height;
 
-# Crear figura y dibujar el polígono
-fig, ax = plt.subplots()
-plt.subplots_adjust(bottom=0.2)
-dibujar_poligono(puntos)
+        // Generar puntos aleatorios
+        const numPuntos = 5 + Math.floor(Math.random() * 4); // Entre 5 y 8 puntos
+        const puntosAleatorios = generarPuntosAleatorios(numPuntos, ancho, alto);
 
-# Botón para alternar el centroide
-ax_button = plt.axes([0.8, 0.05, 0.1, 0.075])
-boton = Button(ax_button, 'Centroide')
-boton.on_clicked(alternar_centroide)
+        // Crear el polígono y dibujarlo
+        const poligono = new Poligono(puntosAleatorios);
+        poligono.dibujar(ctx);
 
-plt.show()
+        // Mostrar si es convexo o cóncavo
+        const tipoPoligono = poligono.esConvexo() ? 'Convexo' : 'Cóncavo';
+        document.getElementById('tipoPoligono').textContent = `Tipo de polígono: ${tipoPoligono}`;
+    }
+
+    // Ejecutar la función al cargar la página
+    window.onload = iniciar;
+
+</script>
+
+</body>
+</html>
