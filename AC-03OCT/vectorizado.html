@@ -85,4 +85,7 @@
 // Generar el path del polígono
  let pathData = puntos.map(p => `${p.getX()},${p.getY()}`).join(' L ');
             pathData = `M ${pathData} Z`; // Cierra el polígono
-
+// Crear y configurar el elemento <path> para el polígono
+            const polygon = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            polygon.setAttribute("d", pathData); // Establecer el atributo 'd' con el path
+            polygon.setAttribute("fill", "none"); 
