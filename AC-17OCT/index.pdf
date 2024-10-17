@@ -1,0 +1,24 @@
+Relleno
+El relleno de figuras en computación gráfica es el proceso de colorear el interior de una figura, delimitada por sus bordes, para darle apariencia sólida. Existen varios algoritmos de relleno, cada uno diseñado para diferentes tipos de figuras, como polígonos o círculos.
+Algoritmos de Relleno:
+•	Relleno por Barrido (Scan-line Fill): Este algoritmo colorea línea por línea, identificando las intersecciones con los bordes de la figura. Los píxeles entre las intersecciones se colorean. Se usa frecuentemente para rellenar polígonos convexos y cóncavos.
+•	Relleno por Propagación de Bordes (Boundary Fill): Dado un punto dentro de la figura, el algoritmo expande el área rellenada hasta encontrar los bordes definidos de la figura.
+•	Relleno por Propagación de Regiones (Flood Fill): Similar al anterior, pero se utiliza cuando no hay un borde claro; rellena regiones con el mismo color hasta que encuentra un límite diferente.
+
+Modelado y Diseño 3D: El relleno es esencial para renderizar objetos sólidos en gráficos tridimensionales, como en programas de modelado 3D y motores de videojuegos.
+Dibujado de Interfaz Gráfica: Herramientas de dibujo y editores gráficos usan estos algoritmos para colorear áreas de imágenes y formas
+Recorte
+El recorte es el proceso de limitar el área visible de una figura a una región específica de la pantalla o ventana gráfica, descartando lo que queda fuera. Esto es esencial para mejorar la eficiencia del renderizado y evitar dibujar elementos que no son visibles.
+Algoritmos de Recorte:
+•	Algoritmo de Cohen-Sutherland: Se usa para recortar líneas. Divide el espacio en una serie de regiones y clasifica las líneas según su ubicación. Luego, recorta las porciones de las líneas que se encuentran fuera del área visible.
+•	Algoritmo de Liang-Barsky: Utiliza una técnica más eficiente que Cohen-Sutherland, empleando una representación paramétrica para recortar líneas.
+•	Recorte de Polígonos (Sutherland-Hodgman): Recorta polígonos contra un área de ventana definiendo los vértices que quedan dentro o fuera de la región.
+
+Renderizado de Escenas: En videojuegos y simulaciones, el recorte se usa para dibujar solo lo que está dentro del campo de visión del jugador o cámara, optimizando el rendimiento.
+Interfaz de Usuario: Al recortar gráficos o ventanas, se asegura que solo se vea la parte necesaria de una imagen o componente de la interfaz.
+Los motores gráficos, como Unity o Unreal Engine, implementan algoritmos avanzados de relleno para generar imágenes en tiempo real. Por ejemplo, en juegos 3D, cada polígono de un modelo 3D es rellenado con texturas y sombras mediante técnicas de rasterización y mapeo de texturas.
+En desarrollo de videojuegos, el recorte se utiliza para ocultar objetos que no están dentro del campo de visión del jugador, mejorando la eficiencia. Este enfoque se llama frustum culling, y permite que el motor de gráficos procese solo los objetos que realmente serán visibles.
+Programas como Photoshop utilizan algoritmos de relleno para herramientas como el "bote de pintura" o la "varita mágica", que rellenan áreas seleccionadas con un color o textura específica.
+Ambos conceptos son fundamentales para el desarrollo de aplicaciones que implican gráficos, ya que contribuyen a la optimización del renderizado y la representación visual de escenas complejas. En videojuegos, el relleno se encarga de darle textura a los objetos, mientras que el recorte asegura que solo se procesen las partes necesarias, reduciendo la carga sobre la GPU.
+Este balance entre calidad visual y eficiencia es crucial para lograr un rendimiento adecuado en software gráfico y videojuegos modernos.
+
