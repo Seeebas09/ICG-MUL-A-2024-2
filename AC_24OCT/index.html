@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relleno y Recorte en Canvas</title>
+    <style>
+        canvas { border: 1px solid black; }
+    </style>
+</head>
+<body>
+    <input type="file" id="imageLoader" accept="image/png, image/jpeg">
+    <input type="color" id="colorPicker" value="#ff0000">
+    <button id="floodFillButton">Flood Fill</button>
+    <button id="scanFillButton">Scan Fill</button>
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <script src="script.js"></script>
+</body>
+</html>
