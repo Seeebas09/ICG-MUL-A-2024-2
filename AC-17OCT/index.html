@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algoritmos de Relleno y Recorte</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Implementación de Algoritmos de Relleno y Recorte</h1>
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <div>
+        <button onclick="applyFloodFill()">Aplicar Flood Fill</button>
+        <button onclick="applyClip()">Aplicar Recorte (Cohen-Sutherland)</button>
+        <input type="color" id="fillColor" value="#ff0000">
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
